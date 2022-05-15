@@ -4,7 +4,6 @@ const List<String> fiveLetterWords = [
   'their',
   'about',
   'words',
-  "about",
   "above",
   "abuse",
   "actor",
