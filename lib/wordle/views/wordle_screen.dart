@@ -33,6 +33,7 @@ class _WordleScreenState extends State<WordleScreen> {
   Word _solution = Word.fromString(
       fiveLetterWords[Random().nextInt(fiveLetterWords.length)].toUpperCase());
   final Set<Letter> _keyboardLetters = {};
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -81,6 +82,7 @@ class _WordleScreenState extends State<WordleScreen> {
   }
 
   Future<void> _onEnterTapped() async {
+    var notinword = fiveLetterWords.contains(_currentWord);
     if (_gamestatus == Gamestatus.playing &&
         _currentWord != null &&
         !_currentWord!.letters.contains(Letter.empty())) {
@@ -108,18 +110,38 @@ class _WordleScreenState extends State<WordleScreen> {
           _keyboardLetters.removeWhere((e) => e.val == currentWordLetter.val);
           _keyboardLetters.add(_currentWord!.letters[i]);
         }
-
-        await Future.delayed(
-          const Duration(milliseconds: 150),
-          () => _flipCardKeys[_currentWordIndex][i].currentState?.toggleCard(),
-        );
+        if (_currentWord!.wordString != notinword) {
+          print("not in word");
+        } else {
+          await Future.delayed(
+            const Duration(milliseconds: 150),
+            () =>
+                _flipCardKeys[_currentWordIndex][i].currentState?.toggleCard(),
+          );
+        }
       }
       _checkIfWinOrLoss();
     }
   }
 
   void _checkIfWinOrLoss() {
-    if (_currentWord!.wordString == _solution.wordString) {
+    var notinword = fiveLetterWords.contains(_currentWord);
+
+    if (_currentWord!.wordString != notinword) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          dismissDirection: DismissDirection.none,
+          duration: const Duration(days: 1),
+          backgroundColor: correctColor,
+          content: const Text(
+            'not in word',
+            style: TextStyle(color: Colors.white),
+          ),
+          action: SnackBarAction(
+              label: 'New Game', textColor: Colors.white, onPressed: _restart),
+        ),
+      );
+    } else if (_currentWord!.wordString == _solution.wordString) {
       _gamestatus = Gamestatus.won;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
